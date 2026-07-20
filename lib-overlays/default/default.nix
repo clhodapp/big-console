@@ -3,7 +3,7 @@
 {
 
   overlay = final: prev: {
-    ch-firmware = prev.ch-firmware or { };
+    big-console = prev.big-console or { };
   };
 
 }
