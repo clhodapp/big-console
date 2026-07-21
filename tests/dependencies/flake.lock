@@ -6,11 +6,11 @@
         "nixpkgs-lib": "nixpkgs-lib"
       },
       "locked": {
-        "lastModified": 1784594932,
-        "narHash": "sha256-NKc5EjIoOf56Jm0EQcPXvBrFeetRrcYKcfX8FRzuXI8=",
+        "lastModified": 1784596092,
+        "narHash": "sha256-u/7d9XlrOLSGRLEAfd8AGW41gi59lheYfL1dQZaQSZM=",
         "owner": "clhodapp",
         "repo": "ch-flake",
-        "rev": "adda52e845e744c9e50ee03fa93ad2df3db41769",
+        "rev": "773cfd0e79dd7f1008567e1e9668243857c6bf26",
         "type": "github"
       },
       "original": {
