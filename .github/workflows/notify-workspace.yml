@@ -1,0 +1,30 @@
+# Ping the workspace repo to run flake-sync convergence after a push to
+# main. Pin-update pushes are converge's own output and are skipped —
+# dispatching for them would only queue a no-op run.
+# Reference: ch-nix-workspace docs/development/flake-sync.md
+# § Scheduled convergence.
+
+name: notify-workspace
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  dispatch:
+    if: "!startsWith(github.event.head_commit.message, 'maint: update flake pins')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch converge to ch-nix-workspace
+        env:
+          WORKSPACE_DISPATCH_TOKEN: ${{ secrets.WORKSPACE_DISPATCH_TOKEN }}
+        run: |
+          curl -sS --fail-with-body -X POST \
+            -H "Authorization: Bearer ${WORKSPACE_DISPATCH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/clhodapp/ch-nix-workspace/dispatches \
+            -d "{\"event_type\":\"converge\",\"client_payload\":{\"repo\":\"${GITHUB_REPOSITORY}\",\"sha\":\"${GITHUB_SHA}\"}}"
