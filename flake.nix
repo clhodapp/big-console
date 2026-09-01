@@ -4,43 +4,39 @@
   description = "Big Console: a HiDPI UEFI text console driver (edk2 GraphicsConsoleDxe fork)";
 
   inputs = {
-    ch-flake.url = "github:clhodapp/ch-flake";
+    caisson.url = "github:nix-caisson/caisson";
     ch-nixpkgs.url = "github:clhodapp/ch-nixpkgs";
 
     # Stable channel on purpose: a boot-path firmware artifact should churn
     # as little as possible, and nothing here needs bleeding-edge nixpkgs.
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
-
-    flake-parts.follows = "ch-flake/flake-parts";
   };
 
   outputs =
-    inputs@{
-      ch-flake,
-      flake-parts,
-      self,
-      ...
-    }:
+    inputs@{ caisson, ... }:
     let
-      lib = ch-flake.lib.mkLib {
+      lib = caisson.lib.caisson-core.mkLib {
         inherit inputs;
+
+        projects = {
+          inherit caisson;
+          ch-nixpkgs = inputs.ch-nixpkgs;
+        };
 
         modules = lib: {
           flake = {
-            default = lib.ch-flake.mkFlakeModule ./modules/flake-parts/default;
-            partitions = flake-parts.flakeModules.partitions;
+            default = lib.caisson.mkFlakeModule ./modules/flake-parts/default;
           };
         };
 
         libOverlays = mkLibOverlay: {
           default = mkLibOverlay ./lib-overlays/default;
-          ch-nixpkgs = inputs.ch-nixpkgs.libOverlays.default;
         };
       };
     in
-    lib.ch-flake.mkFlake {
+    lib.caisson.mkFlake {
       name = "big-console";
-      configModule = lib.ch-flake.mkFlakeModule ./configs/flake-parts/default;
+      configModule = lib.caisson.mkFlakeModule ./configs/flake-parts/default;
     };
 
 }

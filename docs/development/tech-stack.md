@@ -1,7 +1,8 @@
 # Technology Stack
 
 - **Nix** for package definitions and checks
-- **ch-flake** for closed-input `mkLib` and class-keyed module exports
+- **caisson** for closed-input `mkLib` and class-keyed module exports
+  ([github:nix-caisson/caisson](https://github.com/nix-caisson/caisson))
 - **ch-nixpkgs** for package overlay composition
 - **nixpkgs stable** (`nixos-26.05`): edk2 toolchain (`edk2.mkDerivation`),
   OVMF + qemu for the VM checks, terminus_font for the embedded glyphs

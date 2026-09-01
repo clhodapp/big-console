@@ -9,19 +9,12 @@
 }:
 {
 
-  imports = [ inputs.flake-parts.flakeModules.partitions ];
-
   debug = false;
   systems = [ "x86_64-linux" ];
 
-  ch-flake = {
+  caisson = {
     configInfo.configName = "big-console";
-    libOverlays.exported = libOverlays: {
-      inherit (libOverlays)
-        default
-        ch-nixpkgs
-        ;
-    };
+    libOverlays.exported = libOverlays: { inherit (libOverlays) default; };
     modules = {
       flake.exported = modules: { inherit (modules) default; };
     };
@@ -29,7 +22,7 @@
 
   ch-nixpkgs = {
     overlays.all = {
-      packages = lib.ch-nixpkgs.mkPackagesOverlay (
+      packages = lib.caisson.nixpkgs.mkPackagesOverlay (
         { callPackage, ... }: import ../../../pkgs/big-console { inherit callPackage; }
       );
     };
@@ -41,10 +34,7 @@
     };
     pkgSets.pkgs = {
       pkgFunction = import inputs.nixpkgs;
-      overlayImports = overlays: [
-        inputs.ch-nixpkgs.overlays.default
-        overlays.packages
-      ];
+      overlayImports = overlays: [ overlays.packages ];
     };
     packages.export.enabled = true;
   };
@@ -56,7 +46,7 @@
   partitionedAttrs.formatter = "formatter";
 
   partitions.formatter = {
-    extraInputs = lib.ch-flake.partitionExtraInputs ../../../tests/dependencies;
+    extraInputs = lib.caisson-core.partitionExtraInputs ../../../tests/dependencies;
     module =
       { inputs, ... }:
       {
@@ -66,7 +56,7 @@
   };
 
   partitions.checks = {
-    extraInputs = lib.ch-flake.partitionExtraInputs ../../../tests/dependencies;
+    extraInputs = lib.caisson-core.partitionExtraInputs ../../../tests/dependencies;
     module =
       { inputs, self, ... }:
       {
