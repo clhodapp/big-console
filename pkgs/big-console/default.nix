@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: BSD-2-Clause-Patent
 { callPackage, ... }:
 {
   # The driver at the embedded font's native cell size (Terminus 16x32).
