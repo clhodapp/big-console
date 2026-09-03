@@ -1,0 +1,23 @@
+name: check
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  flake-check:
+    runs-on: ubuntu-latest
+    # The VM checks boot OVMF at 3840x2160 and poll framebuffer
+    # screendumps, which is slower than a plain build.
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v22
+        with:
+          # Upstream Nix, not Determinate Nix: the action has
+          # defaulted determinate to true since v21, and this
+          # project targets the Nix everyone else runs.
+          determinate: false
+      # Builds both driver variants and runs the OVMF VM checks that
+      # assert console takeover and cell geometry from the mode table
+      # and framebuffer screendumps.
+      - run: nix flake check -L

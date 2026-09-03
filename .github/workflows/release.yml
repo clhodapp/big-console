@@ -1,0 +1,65 @@
+# Build both driver variants and attach them to a GitHub Release, so the
+# driver is usable without Nix: the artifacts are plain UEFI PE binaries
+# that drop onto an EFI System Partition.
+#
+# Triggered by pushing a tag like v0.1.0, or by hand from the Actions tab
+# against any ref (workflow_dispatch), which builds and uploads the
+# artifacts to the run without creating a release.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v22
+        with:
+          # Upstream Nix, not Determinate Nix: the action has
+          # defaulted determinate to true since v21, and this
+          # project targets the Nix everyone else runs.
+          determinate: false
+
+      # The systemd-boot drop-in path requires the x64.efi suffix, so the
+      # release artifacts are named the way they are meant to be installed.
+      - name: Build both variants
+        run: |
+          mkdir -p artifacts
+          nix build -L '.#big-console-dxe' -o result-1x
+          nix build -L '.#big-console-dxe-2x' -o result-2x
+          install -m0644 result-1x/BigGraphicsConsoleDxe.efi \
+            artifacts/bigconsolex64.efi
+          install -m0644 result-2x/BigGraphicsConsoleDxe.efi \
+            artifacts/bigconsole2xx64.efi
+
+      - name: Checksums
+        run: |
+          cd artifacts
+          sha256sum ./*.efi > SHA256SUMS
+          cat SHA256SUMS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: big-console-efi
+          path: artifacts/
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "${GITHUB_REF_NAME}" \
+            --notes-file .github/release-notes-preamble.md \
+            artifacts/bigconsolex64.efi \
+            artifacts/bigconsole2xx64.efi \
+            artifacts/SHA256SUMS
