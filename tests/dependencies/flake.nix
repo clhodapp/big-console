@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: BSD-2-Clause-Patent
 {
   inputs.caisson.url = "github:nix-caisson/caisson";
   inputs.flake-parts.url = "github:hercules-ci/flake-parts";

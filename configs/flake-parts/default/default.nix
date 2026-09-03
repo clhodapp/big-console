@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: BSD-2-Clause-Patent
 { ... }:
 {
   config,
@@ -7,6 +7,15 @@
   self,
   ...
 }:
+let
+  # The flake's sole package overlay: it adds the `big-console` scope
+  # (`pkgs.big-console.big-console-dxe` and the 2x variant) to nixpkgs.
+  # Exported as-is, so consumers need nothing from this flake but a
+  # standard nixpkgs overlay.
+  packagesOverlay = lib.caisson.nixpkgs.mkPackagesOverlay (
+    { callPackage, ... }: import ../../../pkgs/big-console { inherit callPackage; }
+  ) "big-console";
+in
 {
 
   debug = false;
@@ -20,24 +29,22 @@
     };
   };
 
-  ch-nixpkgs = {
-    overlays.all = {
-      packages = lib.caisson.nixpkgs.mkPackagesOverlay (
-        { callPackage, ... }: import ../../../pkgs/big-console { inherit callPackage; }
-      );
+  flake.overlays.packages = packagesOverlay;
+
+  perSystem =
+    { system, ... }:
+    let
+      pkgs = import inputs.nixpkgs {
+        inherit system;
+        overlays = [ packagesOverlay ];
+      };
+    in
+    {
+      _module.args.pkgs = lib.mkDefault pkgs;
+      packages = {
+        inherit (pkgs.big-console) big-console-dxe big-console-dxe-2x;
+      };
     };
-    overlays.export = {
-      enabled = true;
-    };
-    overlays.exported = overlays: {
-      inherit (overlays) packages;
-    };
-    pkgSets.pkgs = {
-      pkgFunction = import inputs.nixpkgs;
-      overlayImports = overlays: [ overlays.packages ];
-    };
-    packages.export.enabled = true;
-  };
 
   # checks and formatter live in isolated partitions; packages deliberately
   # do not: downstream flakes consume packages.* against this flake's main

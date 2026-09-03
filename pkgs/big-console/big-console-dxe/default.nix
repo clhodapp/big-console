@@ -1,11 +1,11 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: BSD-2-Clause-Patent
 # Builds BigGraphicsConsoleDxe.efi: a fork of edk2's GraphicsConsoleDxe
 # (vendored under ./src from the nixpkgs edk2 tree) that renders the stock
 # 8x19 font magnified by an integer factor, so the Simple Text Output console
 # stays at native GOP resolution while the text becomes readable on HiDPI
 # panels. Its driver-binding version is raised above the stock driver's, so
 # loading it and reconnecting the GOP handle is enough to take the console
-# over — no platform changes. See the workspace flickerless-boot design note.
+# over — no platform changes.
 {
   lib,
   edk2,

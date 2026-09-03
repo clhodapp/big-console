@@ -1,8 +1,10 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: BSD-2-Clause-Patent
 #
-# The exported flake module. Consumers also need caisson's default
-# flake module and ch-nixpkgs's default flake module applied, which
-# any caisson composition selects from its own registry.
+# The exported flake module, for consumers composing this flake with
+# caisson. Consuming the driver needs none of it: `overlays.packages`
+# is a plain nixpkgs overlay and `packages.<system>` holds the two
+# build variants, so any flake can take either without adopting a
+# framework.
 { mkModule, ... }:
 { ... }:
 {

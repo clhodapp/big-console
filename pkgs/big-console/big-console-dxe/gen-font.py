@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: BSD-2-Clause-Patent
 # Generates BigFont.c for BigGraphicsConsoleDxe from a PSF2 console font
 # (optionally gzipped): the glyph bitmaps plus a sorted CHAR16 -> glyph-index
 # map built from the PSF unicode table. Codepoints outside the BMP are

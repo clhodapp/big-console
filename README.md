@@ -38,6 +38,9 @@ full-screen mode — e.g. 240×67 on 3840×2160 with 16×32 cells.
 
 ## Using it
 
+Prebuilt drivers for both scale variants are attached to each release,
+with checksums, if you would rather not build anything.
+
 Build (Nix): `nix build .#big-console-dxe` (or `.#big-console-dxe-2x`).
 The output is a single `BigGraphicsConsoleDxe.efi`.
 
@@ -61,7 +64,11 @@ for magnified builds). Both the 1× and 2× builds are exercised.
 
 ## Licensing
 
-- Driver sources (`pkgs/big-console/big-console-dxe/src`, forked from
-  edk2): BSD-2-Clause-Patent, per the headers in each file.
-- Embedded font glyphs (generated from Terminus): SIL Open Font License 1.1.
-- Nix build scaffolding and tests: GPL-3.0-or-later.
+Everything in this repository is BSD-2-Clause-Patent, matching upstream
+edk2: the driver sources (`pkgs/big-console/big-console-dxe/src`, forked
+from edk2, per the headers in each file) and the Nix build scaffolding
+and tests alike. See `LICENSE`.
+
+The one exception is the font: the glyph bitmaps embedded in the built
+driver are generated from Terminus and carry the SIL Open Font License
+1.1. See `LICENSES/OFL-1.1.txt`.

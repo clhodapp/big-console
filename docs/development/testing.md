@@ -1,6 +1,6 @@
 # Testing
 
-From `projects/big-console/`:
+From the repository root:
 
 ```bash
 nix flake check

@@ -1,11 +1,10 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: BSD-2-Clause-Patent
 {
 
   description = "Big Console: a HiDPI UEFI text console driver (edk2 GraphicsConsoleDxe fork)";
 
   inputs = {
     caisson.url = "github:nix-caisson/caisson";
-    ch-nixpkgs.url = "github:clhodapp/ch-nixpkgs";
 
     # Stable channel on purpose: a boot-path firmware artifact should churn
     # as little as possible, and nothing here needs bleeding-edge nixpkgs.
@@ -20,7 +19,6 @@
 
         projects = {
           inherit caisson;
-          ch-nixpkgs = inputs.ch-nixpkgs;
         };
 
         modules = lib: {

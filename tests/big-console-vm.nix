@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: BSD-2-Clause-Patent
 # Proves the big-glyph console fork works end to end in a VM. OVMF boots the
 # UEFI shell from a FAT disk on a bochs-display whose VRAM (32M) caps the GOP
 # mode list at exactly 3840x2160 — mirroring real GOP hardware, where the
