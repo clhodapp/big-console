@@ -1,25 +1,9 @@
-Copyright (c) 2026, Chris Hodapp. All rights reserved.
-
-Portions of this software are derived from TianoCore EDK II
-(MdeModulePkg/Universal/Console/GraphicsConsoleDxe) and retain the
-copyright notices in the individual source files, including:
-
-  Copyright (c) 2006 - 2022, Intel Corporation. All rights reserved.
-  Copyright (c) 2025, Loongson Technology Corporation Limited.
-    All rights reserved.
-
-This software is licensed under the terms of the BSD-2-Clause-Patent
-license reproduced below. Individual files carry an
-SPDX-License-Identifier tag stating the license that applies to them.
-
-The console font glyphs embedded in the built driver are generated from
-the Terminus font and are licensed under the SIL Open Font License 1.1;
-see LICENSES/OFL-1.1.txt. The generated source file carries its own
-SPDX-License-Identifier: OFL-1.1 tag.
-
---------------------------------------------------------------------
-
 BSD-2-Clause-Patent
+
+Copyright (c) 2026, Chris Hodapp. All rights reserved.
+Copyright (c) 2006 - 2022, Intel Corporation. All rights reserved.
+Copyright (c) 2025, Loongson Technology Corporation Limited.
+  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -70,3 +54,4 @@ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
