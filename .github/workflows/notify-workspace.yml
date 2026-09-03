@@ -18,7 +18,12 @@ permissions: {}
 
 jobs:
   dispatch:
-    if: "!startsWith(github.event.head_commit.message, 'maint: update flake pins')"
+    # Skipped in forks: the dispatch secrets exist only on this
+    # repository, so without the name check a fork pushing to its own
+    # main would get a failed job rather than no job at all.
+    if: >-
+      github.repository == 'clhodapp/big-console'
+      && !startsWith(github.event.head_commit.message, 'maint: update flake pins')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
