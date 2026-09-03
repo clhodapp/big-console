@@ -1,0 +1,25 @@
+Big Console
+
+This file records the licensing of the parts, which the single
+BSD-2-Clause-Patent text in LICENSE does not say on its own. It is kept
+separate from LICENSE because a license file that carries anything
+besides the license text stops being recognized by automated license
+detectors.
+
+Portions of this software are derived from TianoCore EDK II
+(MdeModulePkg/Universal/Console/GraphicsConsoleDxe) and retain the
+copyright notices in the individual source files, including:
+
+  Copyright (c) 2006 - 2022, Intel Corporation. All rights reserved.
+  Copyright (c) 2025, Loongson Technology Corporation Limited.
+    All rights reserved.
+
+Everything this repository owns, the driver fork and the Nix build
+scaffolding and tests alike, is BSD-2-Clause-Patent, matching upstream
+edk2. Individual files carry an SPDX-License-Identifier tag stating the
+license that applies to them.
+
+The console font glyphs embedded in the built driver are generated from
+the Terminus font (version 4.49.1) and are licensed under the SIL Open
+Font License 1.1; see LICENSES/OFL-1.1.txt. The generated source file
+carries its own SPDX-License-Identifier: OFL-1.1 tag.

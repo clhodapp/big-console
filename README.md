@@ -67,7 +67,8 @@ for magnified builds). Both the 1× and 2× builds are exercised.
 Everything in this repository is BSD-2-Clause-Patent, matching upstream
 edk2: the driver sources (`pkgs/big-console/big-console-dxe/src`, forked
 from edk2, per the headers in each file) and the Nix build scaffolding
-and tests alike. See `LICENSE`.
+and tests alike. See `LICENSE` for the terms and `NOTICE` for what came
+from where.
 
 The one exception is the font: the glyph bitmaps embedded in the built
 driver are generated from Terminus and carry the SIL Open Font License
