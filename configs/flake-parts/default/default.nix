@@ -7,15 +7,6 @@
   self,
   ...
 }:
-let
-  # The flake's sole package overlay: it adds the `big-console` scope
-  # (`pkgs.big-console.big-console-dxe` and the 2x variant) to nixpkgs.
-  # Exported as-is, so consumers need nothing from this flake but a
-  # standard nixpkgs overlay.
-  packagesOverlay = lib.caisson.nixpkgs.mkPackagesOverlay (
-    { callPackage, ... }: import ../../../pkgs/big-console { inherit callPackage; }
-  ) "big-console";
-in
 {
 
   debug = false;
@@ -29,22 +20,27 @@ in
     };
   };
 
-  flake.overlays.packages = packagesOverlay;
-
-  perSystem =
-    { system, ... }:
-    let
-      pkgs = import inputs.nixpkgs {
-        inherit system;
-        overlays = [ packagesOverlay ];
-      };
-    in
-    {
-      _module.args.pkgs = lib.mkDefault pkgs;
-      packages = {
-        inherit (pkgs.big-console) big-console-dxe big-console-dxe-2x;
-      };
+  # The sole package overlay, registered with caisson's nixpkgs
+  # integration: it adds the `big-console` scope to nixpkgs, and is
+  # exported as-is so consumers take a plain overlay and nothing else.
+  caisson.nixpkgs = {
+    overlays.all = {
+      packages = lib.caisson.nixpkgs.mkPackagesOverlay (
+        { callPackage, ... }: import ../../../pkgs/big-console { inherit callPackage; }
+      );
     };
+    overlays.export = {
+      enabled = true;
+    };
+    overlays.exported = overlays: {
+      inherit (overlays) packages;
+    };
+    pkgSets.pkgs = {
+      pkgFunction = import inputs.nixpkgs;
+      overlayImports = overlays: [ overlays.packages ];
+    };
+    packages.export.enabled = true;
+  };
 
   # checks and formatter live in isolated partitions; packages deliberately
   # do not: downstream flakes consume packages.* against this flake's main
