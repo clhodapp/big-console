@@ -3,7 +3,7 @@ Prebuilt UEFI drivers, for use without Nix.
 | Artifact | Cell size | For |
 |---|---|---|
 | `bigconsolex64.efi` | 16x32 | The embedded font at its native size |
-| `bigconsole2xx64.efi` | 32x64 | Panels or viewing distances where 16x32 reads small |
+| `bigconsole2xx64.efi` | 32x64 | Panels or viewing distances where 16x32 is still too small |
 
 Verify a download against `SHA256SUMS` before installing it.
 
