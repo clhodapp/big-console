@@ -95,6 +95,41 @@
                 inherit pkgs;
                 bigConsoleDxe = pkgs.big-console.big-console-dxe-2x-aarch64;
               };
+              # systemd-boot's menu at 4K, with the driver loaded from its
+              # drivers directory (the deployment path) and without it. The
+              # scenes' images are what the README shows.
+              systemd-boot-menu =
+                let
+                  scene = args: import ../../../tests/big-console-menu.nix ({ inherit pkgs; } // args);
+                in
+                pkgs.linkFarm "systemd-boot-menu" [
+                  {
+                    name = "stock";
+                    path = scene { name = "stock"; };
+                  }
+                  {
+                    name = "big-console";
+                    path = scene {
+                      name = "big-console";
+                      bigConsoleDxe = pkgs.big-console.big-console-dxe;
+                    };
+                  }
+                  {
+                    name = "big-console-max";
+                    path = scene {
+                      name = "big-console-max";
+                      bigConsoleDxe = pkgs.big-console.big-console-dxe;
+                      consoleMode = "max";
+                    };
+                  }
+                  {
+                    name = "big-console-2x";
+                    path = scene {
+                      name = "big-console-2x";
+                      bigConsoleDxe = pkgs.big-console.big-console-dxe-2x;
+                    };
+                  }
+                ];
             };
             treefmt.programs.nixfmt.enable = true;
           };

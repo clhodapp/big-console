@@ -63,6 +63,27 @@ def main():
         print(f"dump: {img.shape[1]}x{img.shape[0]}, lit={lit}", file=sys.stderr)
         sys.exit(0 if lit >= MIN_BRIGHT_PIXELS else 1)
 
+    if sys.argv[1] == "--band":
+        # The tallest contiguous band of lit rows: a rendered text line's
+        # height, for the menu scenes' glyph-height assertion.
+        mask = bright_mask(load_ppm(sys.argv[2]))
+        lit_rows = mask.any(axis=1).astype(np.int8)
+        padded = np.concatenate(([0], lit_rows, [0]))
+        d = np.diff(padded)
+        bands = np.flatnonzero(d == -1) - np.flatnonzero(d == 1)
+        print(int(bands.max()) if len(bands) else 0)
+        sys.exit(0)
+
+    if sys.argv[1] == "--bbox":
+        # Bounding box of everything drawn: x0 y0 x1 y1.
+        mask = bright_mask(load_ppm(sys.argv[2]))
+        ys, xs = np.nonzero(mask)
+        if len(xs) == 0:
+            print("0 0 0 0")
+        else:
+            print(int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max()))
+        sys.exit(0)
+
     after_path, ppm_path = sys.argv[1], sys.argv[2]
     cell_w, cell_h, scale = (int(a) for a in sys.argv[3:6])
     shared_terminal = "--shared-terminal" in sys.argv[6:]
