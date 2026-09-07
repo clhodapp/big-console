@@ -21,7 +21,7 @@ A fork of TianoCore edk2's `GraphicsConsoleDxe`
   directly by the driver. Characters the font lacks fall back to the
   platform's HII 8×19 glyphs, stretched to the cell.
 - **Integer magnification on top** (`GLYPH_SCALE`), for panels or viewing
-  distances where even 16×32 reads small. A 2× build (32×64 cells) is
+  distances where even 16×32 is still too small. A 2× build (32×64 cells) is
   provided. On panels too small for an 80×25 grid of big cells the driver
   degrades to the stock 8×19 rendering path.
 - **Console takeover.** The driver binding registers at version `0xFFFFFFF0`
