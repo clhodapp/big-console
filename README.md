@@ -58,8 +58,9 @@ How early the driver loads decides how much of that it reaches:
   `x64.efi`), rEFInd from its `drivers_x64` directory, and the UEFI shell
   on `load`. The effect starts there and covers that program and
   everything it chainloads afterwards.
-- **Loaded by the firmware itself.** A `Driver####` boot variable
-  (`efibootmgr --driver --create ...`) or a firmware setup option makes
+- **Loaded by the firmware itself.** A `Driver####` boot variable (e.g.
+  `Driver0000`, created with `efibootmgr --driver --create ...`) or a
+  firmware setup option makes
   the driver active before the firmware's own screens, so the boot menu
   and network boot messages render big too.
 
