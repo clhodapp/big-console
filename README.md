@@ -60,9 +60,9 @@ How early the driver loads decides how much of that it reaches:
   everything it chainloads afterwards.
 - **Loaded by the firmware itself.** A `Driver####` boot variable (e.g.
   `Driver0000`, created with `efibootmgr --driver --create ...`) or a
-  firmware setup option makes
-  the driver active before the firmware's own screens, so the boot menu
-  and network boot messages render big too.
+  firmware setup option makes the driver active before the firmware's
+  own screens, so the boot menu and network boot messages render big
+  too.
 
 Under Secure Boot the driver must be signed with a db-trusted key in
 either case; an unsigned driver is skipped and boot proceeds with the
