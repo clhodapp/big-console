@@ -85,6 +85,16 @@
                   glyphScale = 2;
                 };
               };
+              # The AArch64 builds, under ArmVirtQemu on an emulated
+              # `virt` machine (see the test's header for what differs).
+              big-console-vm-aarch64 = import ../../../tests/big-console-vm.nix {
+                inherit pkgs;
+                bigConsoleDxe = pkgs.big-console.big-console-dxe-aarch64;
+              };
+              big-console-vm-scaled-aarch64 = import ../../../tests/big-console-vm.nix {
+                inherit pkgs;
+                bigConsoleDxe = pkgs.big-console.big-console-dxe-2x-aarch64;
+              };
             };
             treefmt.programs.nixfmt.enable = true;
           };

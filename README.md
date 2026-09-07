@@ -55,7 +55,8 @@ How early the driver loads decides how much of that it reaches:
 
 - **Loaded by another UEFI application.** systemd-boot loads drivers
   from `\EFI\systemd\drivers\` on the ESP (the file must end in
-  `x64.efi`), rEFInd from its `drivers_x64` directory, and the UEFI shell
+  `x64.efi`, or `aa64.efi` on AArch64), rEFInd from its `drivers_x64`
+  (or `drivers_aa64`) directory, and the UEFI shell
   on `load`. The effect starts there and covers that program and
   everything it chainloads afterwards.
 - **Loaded by the firmware itself.** A `Driver####` boot variable (e.g.
@@ -73,30 +74,37 @@ chooses is the grid. By default the console keeps the firmware's current
 mode, normally the spec-mandated 80×25, so the big text sits as a
 centered block; selecting the full-screen mode (systemd-boot's
 `console-mode max` in `loader.conf`, or `mode 240 67` in the shell at
-3840×2160) fills the panel instead.
+3840×2160) fills the panel instead. On a firmware whose console also
+includes a serial terminal (servers, and edk2's `virt` firmware for
+AArch64), the console splitter publishes only the modes every device
+supports, so the largest grid is the terminal's 160×42, drawn in the
+big cells as a centered block.
 
 ## Supported platforms
 
-x86-64 UEFI. The driver is verified on every change against TianoCore
-edk2 (OVMF in QEMU at 3840×2160, both variants, loaded from the UEFI
-shell) and is in use on one AMI Aptio V firmware, loaded by systemd-boot.
-Firmware early-loading (`Driver####`) has not received much testing. Other vendors' firmware should work by the
-UEFI driver-binding rules the console takeover relies on, but has not
-been tried. There is no AArch64 build yet: the driver is
-architecture-neutral C and upstream edk2 builds the console it forks for
-AARCH64, so the port is build plumbing plus a hardware test, and neither
-has been done.
+x86-64 and AArch64 UEFI. On x86-64 the driver is verified on every
+change against TianoCore edk2 (OVMF in QEMU at 3840×2160, both variants,
+loaded from the UEFI shell) and is in use on one AMI Aptio V firmware,
+loaded by systemd-boot. On AArch64 it is verified the same way against
+edk2's ArmVirtQemu on an emulated `virt` machine, and has not been run
+on real hardware. Firmware early-loading (`Driver####`) has not received
+much testing on either. Other vendors' firmware should work by the UEFI
+driver-binding rules the console takeover relies on, but has not been
+tried.
 
 ## Using it
 
-Prebuilt drivers for both scale variants are attached to each release,
-with checksums, if you would rather not build anything. Each release
-artifact is the store path CI built for the tagged commit, so it is
-byte-identical to what `nix build` produces at that tag.
+Prebuilt drivers for both scale variants and both architectures are
+attached to each release, with checksums, if you would rather not build
+anything. Each release artifact is the store path CI built for the
+tagged commit, so it is byte-identical to what `nix build` produces at
+that tag.
 
-Build (Nix): `nix build .#big-console-dxe` (or `.#big-console-dxe-2x`).
-The output is a single `BigGraphicsConsoleDxe.efi`, loaded by any of the
-paths above.
+Build (Nix): `nix build .#big-console-dxe` (or `.#big-console-dxe-2x`);
+the AArch64 builds are `.#big-console-dxe-aarch64` and
+`.#big-console-dxe-2x-aarch64`, cross-compiled from any host. The output
+is a single `BigGraphicsConsoleDxe.efi`, loaded by any of the paths
+above.
 
 ## Verification
 

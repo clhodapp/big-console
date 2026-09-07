@@ -45,17 +45,24 @@ jobs:
           skipPush: true
           extraPullNames: nix-community,numtide
 
-      # The systemd-boot drop-in path requires the x64.efi suffix, so the
-      # release artifacts are named the way they are meant to be installed.
-      - name: Build both variants
+      # systemd-boot's drop-in directory requires the architecture suffix
+      # (x64.efi, aa64.efi), so the release artifacts are named the way
+      # they are meant to be installed.
+      - name: Build every variant
         run: |
           mkdir -p artifacts
           nix build -L '.#big-console-dxe' -o result-1x
           nix build -L '.#big-console-dxe-2x' -o result-2x
+          nix build -L '.#big-console-dxe-aarch64' -o result-1x-aarch64
+          nix build -L '.#big-console-dxe-2x-aarch64' -o result-2x-aarch64
           install -m0644 result-1x/BigGraphicsConsoleDxe.efi \
             artifacts/bigconsolex64.efi
           install -m0644 result-2x/BigGraphicsConsoleDxe.efi \
             artifacts/bigconsole2xx64.efi
+          install -m0644 result-1x-aarch64/BigGraphicsConsoleDxe.efi \
+            artifacts/bigconsoleaa64.efi
+          install -m0644 result-2x-aarch64/BigGraphicsConsoleDxe.efi \
+            artifacts/bigconsole2xaa64.efi
 
       - name: Checksums
         run: |
@@ -79,4 +86,6 @@ jobs:
             --notes-file .github/release-notes-preamble.md \
             artifacts/bigconsolex64.efi \
             artifacts/bigconsole2xx64.efi \
+            artifacts/bigconsoleaa64.efi \
+            artifacts/bigconsole2xaa64.efi \
             artifacts/SHA256SUMS

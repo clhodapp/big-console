@@ -2,20 +2,24 @@ Prebuilt UEFI drivers, for use without Nix.
 
 | Artifact | Cell size | For |
 |---|---|---|
-| `bigconsolex64.efi` | 16x32 | The embedded font at its native size |
-| `bigconsole2xx64.efi` | 32x64 | Panels or viewing distances where 16x32 is still too small |
+| `bigconsolex64.efi` | 16x32 | x86-64; the embedded font at its native size |
+| `bigconsole2xx64.efi` | 32x64 | x86-64; panels or viewing distances where 16x32 is still too small |
+| `bigconsoleaa64.efi` | 16x32 | AArch64; the embedded font at its native size |
+| `bigconsole2xaa64.efi` | 32x64 | AArch64; panels or viewing distances where 16x32 is still too small |
 
 Verify a download against `SHA256SUMS` before installing it.
 
 ## Supported platforms
 
-x86-64 UEFI. The driver is verified on every change against TianoCore
-edk2 (OVMF in QEMU at 3840x2160, both variants, loaded from the UEFI
-shell) and is in use on one AMI Aptio V firmware, loaded by
-systemd-boot. Firmware early-loading (a `Driver####` entry, e.g.
-`Driver0000`) has not received much testing. Other vendors' firmware should work by the
-UEFI driver-binding rules the console takeover relies on, but has not
-been tried. There is no AArch64 build yet.
+x86-64 and AArch64 UEFI. On x86-64 the driver is verified on every
+change against TianoCore edk2 (OVMF in QEMU at 3840x2160, both variants,
+loaded from the UEFI shell) and is in use on one AMI Aptio V firmware,
+loaded by systemd-boot. On AArch64 it is verified the same way against
+edk2's ArmVirtQemu on an emulated machine, and has not been run on real
+hardware. Firmware early-loading (a `Driver####` entry, e.g.
+`Driver0000`) has not received much testing on either. Other vendors'
+firmware should work by the UEFI driver-binding rules the console
+takeover relies on, but has not been tried.
 
 From the moment it loads, everything that writes through Simple Text
 Output renders big: systemd-boot, the UEFI shell, GRUB in `console`
@@ -36,10 +40,12 @@ beyond `SHA256SUMS`.
 
 The quickest path is the systemd-boot drop-in: copy one of the artifacts
 to `EFI/systemd/drivers/` on your EFI System Partition, keeping the
-`x64.efi` filename suffix, which systemd-boot requires. The driver takes
-the console over when it loads, so nothing else needs configuring.
+`x64.efi` (or `aa64.efi`) filename suffix, which systemd-boot requires.
+The driver takes the console over when it loads, so nothing else needs
+configuring.
 
-rEFInd loads it from its `drivers_x64` directory, and a UEFI shell on
+rEFInd loads it from its `drivers_x64` (or `drivers_aa64`) directory,
+and a UEFI shell on
 `load`. A `Driver####` NVRAM entry makes the firmware load it before its
 own screens; that path has not received much testing. See the README
 for details.

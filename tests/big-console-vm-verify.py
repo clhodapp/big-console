@@ -65,20 +65,32 @@ def main():
 
     after_path, ppm_path = sys.argv[1], sys.argv[2]
     cell_w, cell_h, scale = (int(a) for a in sys.argv[3:6])
+    shared_terminal = "--shared-terminal" in sys.argv[6:]
 
     img = load_ppm(ppm_path)
     h, w = img.shape[:2]
     modes = parse_mode_table(after_path)
-    max_cols = max(c for c, _ in modes)
-    max_rows = max(r for _, r in modes)
+    # The largest grid by cell count: the full-screen mode when the
+    # driver is alone on the console, the terminal's largest beside one
+    # (80x50 has more rows than 160x42, so a per-axis maximum would lie).
+    max_cols, max_rows = max(modes, key=lambda m: m[0] * m[1])
 
     print(f"framebuffer: {w}x{h}")
     print(f"modes after takeover: {modes}")
 
     assert w >= 3840, f"framebuffer not 4K-class: {w}x{h}"
 
-    expect_cols = w // cell_w
-    expect_rows = h // cell_h
+    # `mode` prints the console splitter's table, which is the
+    # intersection of every console device's modes. Alone on the console,
+    # the driver's computed full-screen mode is the largest entry. Next to
+    # a serial terminal (ArmVirtQemu registers the PL011 as a console
+    # device, and TerminalDxe has a fixed list ending at 160x42), the
+    # largest entry every device supports is the terminal's, and that is
+    # the grid a user of such a firmware gets.
+    if shared_terminal:
+        expect_cols, expect_rows = 160, 42
+    else:
+        expect_cols, expect_rows = w // cell_w, h // cell_h
     assert max_cols == expect_cols, f"max columns {max_cols} != {expect_cols} (w={w}, cell_w={cell_w})"
     assert max_rows == expect_rows, f"max rows {max_rows} != {expect_rows} (h={h}, cell_h={cell_h})"
 
