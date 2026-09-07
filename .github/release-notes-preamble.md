@@ -7,6 +7,22 @@ Prebuilt UEFI drivers, for use without Nix.
 
 Verify a download against `SHA256SUMS` before installing it.
 
+## Supported platforms
+
+x86-64 UEFI. The driver is verified on every change against TianoCore
+edk2 (OVMF in QEMU at 3840x2160, both variants) and has been used on
+one AMI Aptio V firmware. Other vendors' firmware should work by the
+UEFI driver-binding rules the console takeover relies on, but has not
+been tried. There is no AArch64 build yet.
+
+## Provenance
+
+The artifacts are the store paths the repository's CI built and pushed
+to its binary cache for the tagged commit, copied out and renamed; they
+are byte-identical to what `nix build .#big-console-dxe` (or
+`-2x`) produces at that tag, which is one way to check a download
+beyond `SHA256SUMS`.
+
 ## Installing
 
 The quickest path is the systemd-boot drop-in: copy one of the artifacts
