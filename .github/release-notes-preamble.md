@@ -12,8 +12,8 @@ Verify a download against `SHA256SUMS` before installing it.
 x86-64 UEFI. The driver is verified on every change against TianoCore
 edk2 (OVMF in QEMU at 3840x2160, both variants, loaded from the UEFI
 shell) and is in use on one AMI Aptio V firmware, loaded by
-systemd-boot. Firmware early-loading (a `Driver####` entry) has not been
-exercised on real hardware. Other vendors' firmware should work by the
+systemd-boot. Firmware early-loading (a `Driver####` entry) has not received much
+testing. Other vendors' firmware should work by the
 UEFI driver-binding rules the console takeover relies on, but has not
 been tried. There is no AArch64 build yet.
 
@@ -41,8 +41,8 @@ the console over when it loads, so nothing else needs configuring.
 
 rEFInd loads it from its `drivers_x64` directory, and a UEFI shell on
 `load`. A `Driver####` NVRAM entry makes the firmware load it before its
-own screens; that path is untested on real hardware. See the README for
-details.
+own screens; that path has not received much testing. See the README
+for details.
 
 ## Secure Boot
 

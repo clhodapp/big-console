@@ -72,8 +72,7 @@ stock console.
 x86-64 UEFI. The driver is verified on every change against TianoCore
 edk2 (OVMF in QEMU at 3840×2160, both variants, loaded from the UEFI
 shell) and is in use on one AMI Aptio V firmware, loaded by systemd-boot.
-Firmware early-loading (`Driver####`) has not been exercised on real
-hardware or in the VM check. Other vendors' firmware should work by the
+Firmware early-loading (`Driver####`) has not received much testing. Other vendors' firmware should work by the
 UEFI driver-binding rules the console takeover relies on, but has not
 been tried. There is no AArch64 build yet: the driver is
 architecture-neutral C and upstream edk2 builds the console it forks for
