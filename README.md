@@ -62,6 +62,31 @@ that the console was taken over, the mode grid matches the cell geometry,
 and rendered text actually fills the tall cells (with a no-thin-stems check
 for magnified builds). Both the 1× and 2× builds are exercised.
 
+In CI the same `nix flake check` runs with the Nix store cached between
+runs, since a cold runner builds the edk2 toolchain and both variants
+before it can boot OVMF. A pull request that leaves `.github/` alone is
+checked by `main`'s copy of the workflow, in `main`'s context once its
+own check completes, and adds its build to the shared cache; one that
+changes the pipeline is checked by its own copy, under a cache only it
+can see. The comments at the top of the two workflow files say why that
+split is what makes the cache safe to write from a pull request.
+
+## Binary cache
+
+What `main` builds, both driver variants included, is pushed to the
+`clhodapp` cachix cache, signed with its key, so `nix build` at the same
+pins downloads the driver instead of building the edk2 toolchain. That
+cache skips paths its upstreams already hold, so using it means using
+them too:
+
+| Substituter | Public key |
+|---|---|
+| `https://clhodapp.cachix.org` | `clhodapp.cachix.org-1:EW/0conxH0OQyo0o4ub/grdkFspholmQMSnQyj0vrZI=` |
+| `https://nix-community.cachix.org` | `nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=` |
+| `https://numtide.cachix.org` | `numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE=` |
+
+Add all three to `extra-substituters` and `extra-trusted-public-keys`.
+
 ## Licensing
 
 Everything in this repository is BSD-2-Clause-Patent, matching upstream
