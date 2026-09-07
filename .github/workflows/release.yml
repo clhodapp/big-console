@@ -19,19 +19,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    # Actions pinned by commit, as in check.yml: what this job produces
+    # is loaded into firmware, so the pipeline that produces it must not
+    # change under a moving tag.
     steps:
-      - uses: actions/checkout@v7
-      - uses: DeterminateSystems/nix-installer-action@v22
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          # Upstream Nix, not Determinate Nix: the action has
-          # defaulted determinate to true since v21, and this
-          # project targets the Nix everyone else runs.
-          determinate: false
+          persist-credentials: false
+
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            sandbox = true
 
       # Substitute from the clhodapp cache, where main's check run pushed
-      # both variants; a tag build then downloads rather than rebuilds.
-      # A public cache needs no credentials to read, and nothing is
-      # pushed from here.
+      # both variants, so a tag build downloads the very store paths a
+      # Nix user at the same pins gets rather than compiling again. A
+      # public cache needs no credentials to read; nothing is pushed
+      # from here.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
           name: clhodapp
@@ -56,7 +63,7 @@ jobs:
           sha256sum ./*.efi > SHA256SUMS
           cat SHA256SUMS
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: big-console-efi
           path: artifacts/

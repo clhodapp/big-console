@@ -36,10 +36,23 @@ The text-mode table keeps the UEFI-mandated 80×25 (and 80×50 where it
 fits), the stock driver's historical preset grids, and a computed
 full-screen mode — e.g. 240×67 on 3840×2160 with 16×32 cells.
 
+## Supported platforms
+
+x86-64 UEFI. The driver is verified on every change against TianoCore
+edk2 (OVMF in QEMU at 3840×2160, both variants) and has been used on
+one AMI Aptio V firmware. Other vendors' firmware should work by the
+UEFI driver-binding rules the console takeover relies on, but has not
+been tried. There is no AArch64 build yet: the driver is
+architecture-neutral C and upstream edk2 builds the console it forks for
+AARCH64, so the port is build plumbing plus a hardware test, and neither
+has been done.
+
 ## Using it
 
 Prebuilt drivers for both scale variants are attached to each release,
-with checksums, if you would rather not build anything.
+with checksums, if you would rather not build anything. Each release
+artifact is the store path CI built for the tagged commit, so it is
+byte-identical to what `nix build` produces at that tag.
 
 Build (Nix): `nix build .#big-console-dxe` (or `.#big-console-dxe-2x`).
 The output is a single `BigGraphicsConsoleDxe.efi`.
