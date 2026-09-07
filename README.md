@@ -11,6 +11,27 @@ accompanying flicker on the way into the OS. Big Console replaces the
 console's renderer instead: the framebuffer stays at native resolution and
 the glyphs get bigger.
 
+## Before and after
+
+The systemd-boot menu on a 3840×2160 framebuffer, captured from the
+project's VM check. Each image is the same 1280×720 window at 1:1, so the
+glyphs compare at their real size.
+
+| Stock console (8×19 cells) | Big Console (16×32 cells) | Big Console 2× (32×64 cells) |
+|---|---|---|
+| ![stock console](docs/images/systemd-boot-stock-crop.png) | ![big console](docs/images/systemd-boot-big-console-crop.png) | ![big console 2x](docs/images/systemd-boot-big-console-2x-crop.png) |
+
+The whole frame, reduced to a third, shows how much of the panel each
+one uses; the stock menu is the speck in the middle.
+
+| Stock console | Big Console | Big Console 2× |
+|---|---|---|
+| ![stock frame](docs/images/systemd-boot-stock-frame.png) | ![big console frame](docs/images/systemd-boot-big-console-frame.png) | ![big console 2x frame](docs/images/systemd-boot-big-console-2x-frame.png) |
+
+These come from the `systemd-boot-menu` check, which boots systemd-boot
+from an ESP with the driver in its drivers directory, the way it is
+deployed, and dumps the framebuffer once the menu is up.
+
 ## What it is
 
 A fork of TianoCore edk2's `GraphicsConsoleDxe`
