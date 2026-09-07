@@ -28,6 +28,16 @@ jobs:
           # project targets the Nix everyone else runs.
           determinate: false
 
+      # Substitute from the clhodapp cache, where main's check run pushed
+      # both variants; a tag build then downloads rather than rebuilds.
+      # A public cache needs no credentials to read, and nothing is
+      # pushed from here.
+      - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        with:
+          name: clhodapp
+          skipPush: true
+          extraPullNames: nix-community,numtide
+
       # The systemd-boot drop-in path requires the x64.efi suffix, so the
       # release artifacts are named the way they are meant to be installed.
       - name: Build both variants
