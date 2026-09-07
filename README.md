@@ -75,15 +75,6 @@ centered block; selecting the full-screen mode (systemd-boot's
 `console-mode max` in `loader.conf`, or `mode 240 67` in the shell at
 3840×2160) fills the panel instead.
 
-**If the screen stays black where a menu should be**, the firmware has
-attached the driver's console but not brought it to the current mode,
-so output is going nowhere visible. Changing the text mode once fixes
-it: in systemd-boot press `r`, which cycles the console mode, until the
-menu appears. This was seen once, on the first boot after installing the
-driver on an AMI Aptio V board with a `console-mode` already configured,
-and has not recurred; the driver now re-applies the current mode at
-takeover for this reason, so most users should never see it.
-
 ## Supported platforms
 
 x86-64 UEFI. The driver is verified on every change against TianoCore

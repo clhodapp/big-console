@@ -48,12 +48,6 @@ The text grid stays at the firmware's current mode, normally 80x25 drawn
 as a centered block of big cells; to fill the panel, select the
 full-screen mode (systemd-boot: `console-mode max` in `loader.conf`).
 
-If the screen stays black where the menu should be, the firmware has
-attached the driver's console without bringing it to the current mode.
-Change the text mode once and output appears: in systemd-boot press
-`r`, which cycles the console mode. Seen once on first boot on an AMI
-Aptio V board; it has not recurred.
-
 ## Secure Boot
 
 If Secure Boot is enabled, the driver must be signed by a key your
