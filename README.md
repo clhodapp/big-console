@@ -36,23 +36,76 @@ The text-mode table keeps the UEFI-mandated 80×25 (and 80×50 where it
 fits), the stock driver's historical preset grids, and a computed
 full-screen mode — e.g. 240×67 on 3840×2160 with 16×32 cells.
 
+## What it affects
+
+From the moment the driver loads until the operating system takes over
+the display, every pre-boot program that writes through the Simple Text
+Output protocol renders in the big cells, whatever loaded it and from
+wherever. That includes systemd-boot's menu, the UEFI shell, GRUB when
+its output terminal is `console` (the usual state of a GRUB fetched
+over the network), rEFInd in text mode, iPXE, shim and MokManager, the
+firmware's own boot menu and network boot messages, and the few lines
+the kernel's EFI stub prints. It does not include programs that draw
+their own pixels through the graphics output protocol: GRUB's `gfxterm`
+(what distribution configs select by default), rEFInd's graphical mode,
+Limine, and Windows Boot Manager. The Linux console after boot is a
+different renderer with its own font setting.
+
+How early the driver loads decides how much of that it reaches:
+
+- **Loaded by another UEFI application.** systemd-boot loads drivers
+  from `\EFI\systemd\drivers\` on the ESP (the file must end in
+  `x64.efi`), rEFInd from its `drivers_x64` directory, and the UEFI shell
+  on `load`. The effect starts there and covers that program and
+  everything it chainloads afterwards.
+- **Loaded by the firmware itself.** A `Driver####` boot variable (e.g.
+  `Driver0000`, created with `efibootmgr --driver --create ...`) or a
+  firmware setup option makes the driver active before the firmware's
+  own screens, so the boot menu and network boot messages render big
+  too.
+
+Under Secure Boot the driver must be signed with a db-trusted key in
+either case; an unsigned driver is skipped and boot proceeds with the
+stock console.
+
+The framebuffer stays at native resolution throughout; what a text mode
+chooses is the grid. By default the console keeps the firmware's current
+mode, normally the spec-mandated 80×25, so the big text sits as a
+centered block; selecting the full-screen mode (systemd-boot's
+`console-mode max` in `loader.conf`, or `mode 240 67` in the shell at
+3840×2160) fills the panel instead.
+
+**If the screen stays black where a menu should be**, the firmware has
+attached the driver's console but not brought it to the current mode,
+so output is going nowhere visible. Changing the text mode once fixes
+it: in systemd-boot press `r`, which cycles the console mode, until the
+menu appears. This was seen once, on the first boot after installing the
+driver on an AMI Aptio V board with a `console-mode` already configured,
+and has not recurred; the driver now re-applies the current mode at
+takeover for this reason, so most users should never see it.
+
+## Supported platforms
+
+x86-64 UEFI. The driver is verified on every change against TianoCore
+edk2 (OVMF in QEMU at 3840×2160, both variants, loaded from the UEFI
+shell) and is in use on one AMI Aptio V firmware, loaded by systemd-boot.
+Firmware early-loading (`Driver####`) has not received much testing. Other vendors' firmware should work by the
+UEFI driver-binding rules the console takeover relies on, but has not
+been tried. There is no AArch64 build yet: the driver is
+architecture-neutral C and upstream edk2 builds the console it forks for
+AARCH64, so the port is build plumbing plus a hardware test, and neither
+has been done.
+
 ## Using it
 
 Prebuilt drivers for both scale variants are attached to each release,
-with checksums, if you would rather not build anything.
+with checksums, if you would rather not build anything. Each release
+artifact is the store path CI built for the tagged commit, so it is
+byte-identical to what `nix build` produces at that tag.
 
 Build (Nix): `nix build .#big-console-dxe` (or `.#big-console-dxe-2x`).
-The output is a single `BigGraphicsConsoleDxe.efi`.
-
-The driver is a standard UEFI driver; any of the usual load paths work:
-
-- **systemd-boot drop-in:** place it on the ESP as
-  `\EFI\systemd\drivers\<name>x64.efi` (the `x64.efi` suffix is required).
-  Under Secure Boot it must be signed with a db-trusted key; an unsigned
-  driver is skipped and boot proceeds with the stock console.
-- **`Driver####` boot variable:** `efibootmgr --driver --create ...`.
-- **UEFI shell:** `load BigGraphicsConsoleDxe.efi` — takeover happens at
-  load.
+The output is a single `BigGraphicsConsoleDxe.efi`, loaded by any of the
+paths above.
 
 ## Verification
 
