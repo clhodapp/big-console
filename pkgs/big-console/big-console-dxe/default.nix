@@ -8,6 +8,7 @@
 # over — no platform changes.
 {
   lib,
+  stdenv,
   edk2,
   nasm,
   buildPackages,
@@ -44,9 +45,11 @@
     "GLYPH_SCALE=${toString glyphScale}"
   ];
 
+  # The architecture directory is whatever edk2 built for the host
+  # platform (X64, AARCH64); a cross build has exactly one.
   installPhase = ''
     runHook preInstall
-    install -D -m0644 Build/BigConsolePkg/RELEASE_*/X64/BigGraphicsConsoleDxe.efi \
+    install -D -m0644 Build/BigConsolePkg/RELEASE_*/*/BigGraphicsConsoleDxe.efi \
       "$out/BigGraphicsConsoleDxe.efi"
     runHook postInstall
   '';
@@ -55,6 +58,9 @@
     inherit glyphScale fontWidth fontHeight;
     cellWidth = fontWidth * glyphScale;
     cellHeight = fontHeight * glyphScale;
+    # The UEFI image architecture suffix ("x64", "aa64"): what
+    # systemd-boot's drop-in file names and the release artifacts end in.
+    efiArch = stdenv.hostPlatform.efiArch;
   };
 
   meta = {
@@ -64,6 +70,9 @@
       lib.licenses.bsd2
       lib.licenses.ofl
     ];
-    platforms = [ "x86_64-linux" ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
+    ];
   };
 })
