@@ -10,8 +10,6 @@
 {
 
   debug = false;
-  systems = [ "x86_64-linux" ];
-
   caisson = {
     configInfo.configName = "big-console";
     libOverlays.exported = libOverlays: { inherit (libOverlays) default; };

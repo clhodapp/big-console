@@ -36,6 +36,7 @@
     let
       lib = caisson.lib.caisson-core.mkLib {
         inherit inputs;
+        systems = [ "x86_64-linux" ];
 
         projects = {
           inherit caisson;
