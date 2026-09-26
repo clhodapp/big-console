@@ -39,25 +39,19 @@
     let
       lib = caisson.lib.caisson-core.mkLib {
         inherit inputs;
+        namespace = "big-console";
         systems = [ "x86_64-linux" ];
 
         projects = {
           inherit caisson;
         };
 
-        modules = lib: {
-          flake = {
-            default = lib.caisson.flake-parts.mkModule ./modules/flake-parts/default;
-          };
-        };
+        modules = caisson.lib.caisson-core.mkModules ./modules;
 
-        libOverlays = mkLibOverlay: {
-          default = mkLibOverlay ./lib-overlays/default;
-        };
+        libOverlays = caisson.lib.caisson-core.mkLibOverlays ./lib-overlays;
       };
     in
     lib.caisson.flake-parts.mkConfiguration {
-      name = "big-console";
       configModule = lib.caisson.flake-parts.mkModule ./configs/flake-parts/default;
     };
 
