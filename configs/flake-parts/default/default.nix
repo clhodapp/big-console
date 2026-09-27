@@ -13,7 +13,6 @@
 
   debug = false;
   caisson = {
-    configInfo.configName = "big-console";
     libOverlays.exported = libOverlays: { inherit (libOverlays) default; };
     modules = {
       flake.exported = modules: { inherit (modules) default; };
