@@ -168,7 +168,7 @@ into the consumer.
 ## Licensing
 
 Everything in this repository is BSD-2-Clause-Patent, matching upstream
-edk2: the driver sources (`pkgs/big-console/big-console-dxe/src`, forked
+edk2: the driver sources (`pkg-overlays/default/packages/big-console-dxe/src`, forked
 from edk2, per the headers in each file) and the Nix build scaffolding
 and tests alike. See `LICENSE` for the terms and `NOTICE` for what came
 from where.

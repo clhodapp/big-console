@@ -6,5 +6,5 @@
 - **nixpkgs stable** (`nixos-26.05`): edk2 toolchain (`edk2.mkDerivation`),
   OVMF + qemu for the VM checks, terminus_font for the embedded glyphs
 - **C (edk2 DXE driver)**: vendored fork under
-  `pkgs/big-console/big-console-dxe/src/BigConsolePkg`, built as a
+  `pkg-overlays/default/packages/big-console-dxe/src/BigConsolePkg`, built as a
   standalone X64 UEFI driver against edk2 core via a minimal DSC

@@ -19,25 +19,13 @@
     };
   };
 
-  # The sole package overlay, registered with caisson's nixpkgs
-  # integration: it adds the `big-console` scope to nixpkgs, and is
-  # exported as-is so consumers take a plain overlay and nothing else.
+  # The sole package overlay is the `default` entry of this flake's
+  # package overlay registry (pkg-overlays/, registered on mkLib): it adds
+  # the `big-console` scope to nixpkgs, the package set applies it by
+  # default, and the flake exports it as `pkgOverlays` and as the plain
+  # `overlays.default`.
   caisson.nixpkgs = {
-    overlays.all = {
-      packages = lib.caisson.nixpkgs.mkPackagesOverlay (
-        { callPackage, ... }: import ../../../pkgs/big-console { inherit callPackage; }
-      );
-    };
-    overlays.export = {
-      enabled = true;
-    };
-    overlays.exported = overlays: {
-      inherit (overlays) packages;
-    };
-    pkgSets.pkgs = {
-      pkgFunction = import inputs.nixpkgs;
-      overlayImports = overlays: [ overlays.packages ];
-    };
+    pkgSets.pkgs.pkgFunction = import inputs.nixpkgs;
     packages.export.enabled = true;
   };
 
