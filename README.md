@@ -1,15 +1,26 @@
 # Big Console
 
-A UEFI DXE driver that makes pre-boot text readable on HiDPI displays,
-without leaving native resolution.
+Big Console makes the text of systemd-boot and other UEFI console
+applications, such as the UEFI shell, bigger on HiDPI displays without
+making it pixelated. It draws a high-resolution font at the panel's
+native resolution, so the large text stays as sharp as the panel can
+show it.
 
-Firmware text consoles draw a hardcoded 8×19 pixel font. On a 4K panel that
-means unreadably tiny text in every pre-boot surface that uses the Simple
-Text Output protocol — most notably the systemd-boot menu, whose only
-alternative (a low-resolution text mode) forces a resolution switch and the
-accompanying flicker on the way into the OS. Big Console replaces the
-console's renderer instead: the framebuffer stays at native resolution and
-the glyphs get bigger.
+Big Console is a UEFI DXE driver: a firmware driver that systemd-boot,
+the UEFI shell, or the firmware itself loads before the operating system
+starts.
+
+Firmware text consoles draw a hardcoded 8×19 pixel font. On a 4K panel
+that means unreadably tiny text in every pre-boot surface that uses the
+Simple Text Output protocol, most notably the systemd-boot menu. The
+usual way to enlarge that text is a low-resolution text mode, which
+switches the display to a lower resolution. The panel then scales every
+pixel up, so the text gets bigger but also blocky or blurred, and the
+display flickers through another resolution switch on the way into the
+OS. Big Console replaces the console's renderer instead. The framebuffer
+stays at native resolution, and each character is drawn from a font
+designed at the larger size, so the glyphs get bigger without getting
+coarser.
 
 ## Before and after
 
@@ -113,19 +124,109 @@ much testing on either. Other vendors' firmware should work by the UEFI
 driver-binding rules the console takeover relies on, but has not been
 tried.
 
-## Using it
+## Installing
 
-Prebuilt drivers for both scale variants and both architectures are
-attached to each release, with checksums, if you would rather not build
-anything. Each release artifact is the store path CI built for the
-tagged commit, so it is byte-identical to what `nix build` produces at
-that tag.
+The driver is one `.efi` file. The most common installation puts that
+file where systemd-boot looks for drivers. systemd-boot then loads it
+every boot before drawing its menu, and everything systemd-boot starts
+afterwards, the UEFI shell included, keeps the big font.
 
-Build (Nix): `nix build .#big-console-dxe` (or `.#big-console-dxe-2x`);
-the AArch64 builds are `.#big-console-dxe-aarch64` and
-`.#big-console-dxe-2x-aarch64`, cross-compiled from any host. The output
-is a single `BigGraphicsConsoleDxe.efi`, loaded by any of the paths
-above.
+### Pick a file
+
+Each [release](https://github.com/clhodapp/big-console/releases) has
+four drivers and a `SHA256SUMS` file:
+
+| File | Architecture | Cell size |
+|---|---|---|
+| `bigconsolex64.efi` | x86-64 | 16×32 |
+| `bigconsole2xx64.efi` | x86-64 | 32×64 |
+| `bigconsoleaa64.efi` | AArch64 | 16×32 |
+| `bigconsole2xaa64.efi` | AArch64 | 32×64 |
+
+Start with the 16×32 build. The 2× build suits a 4K panel viewed from a
+distance. Each release file is the store path CI built for the tagged
+commit, so it is byte-identical to what `nix build` produces at that
+tag.
+
+### systemd-boot on any distribution
+
+Copy the file into `EFI/systemd/drivers/` on the EFI system partition
+(ESP), keeping its name. systemd-boot loads only files whose names end
+in `x64.efi` (or `aa64.efi` on AArch64), and the release names already
+do. With the ESP mounted at `/boot`:
+
+```sh
+sha256sum --check --ignore-missing SHA256SUMS
+sudo install -D -m0644 bigconsolex64.efi /boot/EFI/systemd/drivers/bigconsolex64.efi
+```
+
+Reboot. The menu appears in the big font as a centered 80×25 block. To
+fill the screen instead, add this line to `/boot/loader/loader.conf`:
+
+```
+console-mode max
+```
+
+To uninstall, delete the file from `EFI/systemd/drivers/`.
+
+### NixOS
+
+Add this flake as an input and have systemd-boot install the driver
+onto the ESP:
+
+```nix
+# flake.nix
+inputs.big-console.url = "github:clhodapp/big-console";
+```
+
+```nix
+# configuration.nix, with `inputs` passed to the module
+boot.loader.systemd-boot = {
+  extraFiles."EFI/systemd/drivers/bigconsolex64.efi" =
+    "${inputs.big-console.packages.x86_64-linux.big-console-dxe}/BigGraphicsConsoleDxe.efi";
+  consoleMode = "max";
+};
+```
+
+The next `nixos-rebuild boot` or `switch` copies the driver onto the ESP.
+The other builds are the packages `big-console-dxe-2x`,
+`big-console-dxe-aarch64` and `big-console-dxe-2x-aarch64`. All four
+are under `packages.x86_64-linux`, because the AArch64 drivers are
+cross-compiled, so an AArch64 machine also takes its driver from there
+and names the file `bigconsoleaa64.efi`. The [binary cache](#binary-cache)
+section lists the caches that let Nix download the driver instead of
+building the edk2 toolchain.
+
+### Secure Boot
+
+Under Secure Boot, the firmware loads only drivers signed with a key in
+its db. Sign the file the same way you sign systemd-boot itself, for
+example with `sbsign` or `sbctl sign`. The firmware skips an unsigned
+driver, and boot continues with the stock console.
+
+### Other boot paths
+
+rEFInd loads the same file from its `drivers_x64` (or `drivers_aa64`)
+directory, and a UEFI shell started some other way loads it with
+`load`. To make the firmware's own boot menu big too, register the
+driver as a firmware driver, which runs before any boot manager:
+
+```sh
+sudo efibootmgr --driver --create --disk /dev/nvme0n1 --part 1 \
+  --loader '\EFI\big-console\bigconsolex64.efi' --label 'Big Console'
+```
+
+Copy the file to that path on the ESP first, and change `--disk` and
+`--part` to the disk and partition number that hold the ESP. This path
+has had less testing than systemd-boot loading.
+
+### Building
+
+`nix build .#big-console-dxe` builds the 16×32 x86-64 driver, and
+`.#big-console-dxe-2x` builds the 32×64 one. The AArch64 builds are
+`.#big-console-dxe-aarch64` and `.#big-console-dxe-2x-aarch64`, and
+they cross-compile from any host. Each output is a directory holding
+`BigGraphicsConsoleDxe.efi`.
 
 ## Verification
 
