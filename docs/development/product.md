@@ -28,7 +28,7 @@ passive driver placed here would sit idle.
 
 **`Driver####` NVRAM entry.** Register the driver as a UEFI driver-load
 option with `efibootmgr --driver --create`. The firmware loads it during
-its own driver-connection phase, which covers pre-boot surfaces that
+its driver-connection phase, which covers pre-boot surfaces that
 appear before any boot loader runs.
 
 **Baked into firmware.** On platforms where you build the ROM, include

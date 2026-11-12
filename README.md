@@ -58,7 +58,7 @@ A fork of TianoCore edk2's `GraphicsConsoleDxe`
   degrades to the stock 8×19 rendering path.
 - **Console takeover.** The driver binding registers at version `0xFFFFFFF0`
   (the UEFI spec's platform-reserved band, above any IHV-range version a
-  firmware console uses — edk2 binds at 0xa, AMI Aptio V at 0x10). At image
+  firmware console uses; edk2 binds at 0xa and AMI Aptio V binds at 0x10). At image
   start the driver evicts the incumbent console from every GOP handle,
   re-runs the binding contest it now wins, and re-syncs the system console's
   current mode. Loading the driver is sufficient; no platform modification
@@ -66,7 +66,7 @@ A fork of TianoCore edk2's `GraphicsConsoleDxe`
 
 The text-mode table keeps the UEFI-mandated 80×25 (and 80×50 where it
 fits), the stock driver's historical preset grids, and a computed
-full-screen mode — e.g. 240×67 on 3840×2160 with 16×32 cells.
+full-screen mode, such as 240×67 on 3840×2160 with 16×32 cells.
 
 ## What it affects
 
@@ -76,12 +76,12 @@ Output protocol renders in the big cells, whatever loaded it and from
 wherever. That includes systemd-boot's menu, the UEFI shell, GRUB when
 its output terminal is `console` (the usual state of a GRUB fetched
 over the network), rEFInd in text mode, iPXE, shim and MokManager, the
-firmware's own boot menu and network boot messages, and the few lines
+boot menu and network boot messages of the firmware, and the few lines
 the kernel's EFI stub prints. It does not include programs that draw
-their own pixels through the graphics output protocol: GRUB's `gfxterm`
+pixels directly through the graphics output protocol: GRUB's `gfxterm`
 (what distribution configs select by default), rEFInd's graphical mode,
 Limine, and Windows Boot Manager. The Linux console after boot is a
-different renderer with its own font setting.
+different renderer with a separate font setting.
 
 How early the driver loads decides how much of that it reaches:
 
@@ -93,8 +93,8 @@ How early the driver loads decides how much of that it reaches:
   everything it chainloads afterwards.
 - **Loaded by the firmware itself.** A `Driver####` boot variable (e.g.
   `Driver0000`, created with `efibootmgr --driver --create ...`) or a
-  firmware setup option makes the driver active before the firmware's
-  own screens, so the boot menu and network boot messages render big
+  firmware setup option makes the driver active before the screens of
+  the firmware, so the boot menu and network boot messages render big
   too.
 
 Under Secure Boot the driver must be signed with a db-trusted key in
@@ -208,7 +208,7 @@ driver, and boot continues with the stock console.
 
 rEFInd loads the same file from its `drivers_x64` (or `drivers_aa64`)
 directory, and a UEFI shell started some other way loads it with
-`load`. To make the firmware's own boot menu big too, register the
+`load`. To make the boot menu of the firmware big too, register the
 driver as a firmware driver, which runs before any boot manager:
 
 ```sh
@@ -231,7 +231,7 @@ they cross-compile from any host. Each output is a directory holding
 ## Verification
 
 `nix flake check` boots OVMF in QEMU at 3840×2160, loads the driver from a
-UEFI shell, and asserts — from the mode table and framebuffer screendumps —
+UEFI shell, and asserts, from the mode table and framebuffer screendumps,
 that the console was taken over, the mode grid matches the cell geometry,
 and rendered text actually fills the tall cells (with a no-thin-stems check
 for magnified builds). Both the 1× and 2× builds are exercised.
@@ -239,10 +239,10 @@ for magnified builds). Both the 1× and 2× builds are exercised.
 In CI the same `nix flake check` runs with the Nix store cached between
 runs, since a cold runner builds the edk2 toolchain and both variants
 before it can boot OVMF. A pull request that leaves `.github/` alone is
-checked by `main`'s copy of the workflow, in `main`'s context once its
-own check completes, and adds its build to the shared cache; one that
-changes the pipeline is checked by its own copy, under a cache only it
-can see. The comments at the top of the two workflow files say why that
+checked by `main`'s copy of the workflow, in `main`'s context once the
+request's check-pr run completes, and adds its build to the shared
+cache; a pull request that changes the pipeline is checked by the copy
+of the workflow it carries, under a cache only that request can see. The comments at the top of the two workflow files say why that
 split is what makes the cache safe to write from a pull request.
 
 ## Binary cache
@@ -262,7 +262,7 @@ them too:
 The flake's `nixConfig` declares all three, so a direct `nix build` or
 `nix flake check` here uses them once accepted: answer Nix's prompt, or
 pass `--accept-flake-config`. A flake that consumes this one
-as an input must add them to its own `extra-substituters` and
+as an input must add them to its `extra-substituters` and
 `extra-trusted-public-keys`; Nix does not carry an input's settings
 into the consumer.
 

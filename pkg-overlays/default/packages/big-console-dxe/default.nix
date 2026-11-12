@@ -5,7 +5,7 @@
 # stays at native GOP resolution while the text becomes readable on HiDPI
 # panels. Its driver-binding version is raised above the stock driver's, so
 # loading it and reconnecting the GOP handle is enough to take the console
-# over — no platform changes.
+# over, with no platform changes.
 {
   lib,
   stdenv,

@@ -1,7 +1,7 @@
 Big Console
 
 This file records the licensing of the parts, which the single
-BSD-2-Clause-Patent text in LICENSE does not say on its own. It is kept
+BSD-2-Clause-Patent text in LICENSE does not say by itself. It is kept
 separate from LICENSE because a license file that carries anything
 besides the license text stops being recognized by automated license
 detectors.
@@ -22,4 +22,4 @@ license that applies to them.
 The console font glyphs embedded in the built driver are generated from
 the Terminus font (version 4.49.1) and are licensed under the SIL Open
 Font License 1.1; see LICENSES/OFL-1.1.txt. The generated source file
-carries its own SPDX-License-Identifier: OFL-1.1 tag.
+carries a separate SPDX-License-Identifier: OFL-1.1 tag.

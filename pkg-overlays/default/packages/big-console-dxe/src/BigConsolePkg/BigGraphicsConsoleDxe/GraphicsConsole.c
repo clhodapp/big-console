@@ -64,7 +64,7 @@ VOID                       *mHiiRegistration;
 // Fresh GUID (not upstream's f5f219d3-...): the platform's stock
 // GraphicsConsoleDxe has usually already registered the same simplified font
 // under the upstream GUID, and this fork must not collide with that package
-// list when it registers its own copy.
+// list when it registers a copy of the font.
 //
 EFI_GUID  mFontPackageListGuid = {
   0x481eb87b, 0x383e, 0x4191, { 0xb8, 0x32, 0x1f, 0xf3, 0x84, 0x29, 0xe6, 0xe1 }
@@ -1721,8 +1721,8 @@ BigFontLookup (
 
 /**
   Render one character into a pixel buffer as a big-font cell: the embedded
-  glyph magnified by the device scale, or — for characters the embedded font
-  lacks — the platform's HII glyph stretched to the cell with
+  glyph magnified by the device scale, or, for characters the embedded font
+  lacks, the platform's HII glyph stretched to the cell with
   nearest-neighbor sampling.
 
   @param  Private               Graphics console device instance.
@@ -1788,7 +1788,7 @@ DrawBigFontCell (
 
   //
   // Fall back to the platform's HII glyph (8x19, rendered in the system
-  // font's own colors) stretched over the cell; threshold each sample back
+  // font colors) stretched over the cell; threshold each sample back
   // to this console's colors.
   //
   Fallback = NULL;
@@ -2064,7 +2064,7 @@ DrawUnicodeWeightAtCursorN (
 
       if (!EFI_ERROR (Status)) {
         //
-        // Magnify exactly the pixels the string produced — spilling further
+        // Magnify exactly the pixels the string produced; spilling further
         // right would wipe cells this call does not own.
         //
         DrawWidth = 0;
@@ -2308,7 +2308,7 @@ RegisterFontPackage (
   Loaders do not do this for us: systemd-boot's post-driver-load "reconnect"
   only calls ConnectController, and an already-connected GOP handle keeps its
   console (Supported() gets EFI_ACCESS_DENIED on the BY_DRIVER open). Only
-  handles carrying a device path are touched — ConSplitter's virtual console
+  handles carrying a device path are touched; ConSplitter's virtual console
   handle also exposes GOP but has none. Disconnecting the GOP handle only
   unbinds the console driver on it (the GPU driver manages the parent PCI
   handle), so the graphics mode is left undisturbed. When dispatched before

@@ -72,7 +72,7 @@ pkgs.runCommand "big-console-menu-${name}"
       mcopy -i esp.img ${bigConsoleDxe}/BigGraphicsConsoleDxe.efi ::/EFI/systemd/drivers/bigconsolex64.efi
     ''}
 
-    # --- stage 1: make OVMF's own console run at 4K -------------------------
+    # --- stage 1: make the stock OVMF console run at 4K ---------------------
     # OVMF's stock console takes its resolution from the PlatformConfig
     # variable (what its setup screen's "preferred resolution" writes; two
     # little-endian UINT32s, horizontal then vertical), and defaults to a

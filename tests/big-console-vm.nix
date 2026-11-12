@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 # Proves the big-glyph console fork works end to end in a VM. OVMF boots the
 # UEFI shell from a FAT disk on a bochs-display whose VRAM (32M) caps the GOP
-# mode list at exactly 3840x2160 — mirroring real GOP hardware, where the
+# mode list at exactly 3840x2160, mirroring real GOP hardware, where the
 # mode list is panel-derived and the highest mode is the native resolution
 # (QEMU's virtio-gpu instead advertises up-to-8K virtual modes no panel has).
 # startup.nsh records the stock console's text-mode table and loads
-# BigGraphicsConsoleDxe.efi — load alone must flip the console: the driver's
+# BigGraphicsConsoleDxe.efi. Load alone must flip the console: the driver's
 # entry point evicts the incumbent from the GOP handle and re-runs the
 # binding contest, which is exactly what the systemd-boot drivers-directory
 # deployment relies on (systemd-boot's post-load reconnect never
@@ -19,7 +19,7 @@
 #   - rendered text lines actually fill the tall cells (the tallest lit-row
 #     band spans most of a cell height),
 #   - when integer magnification is in play (glyphScale >= 2), no foreground
-#     pixel run is narrower than the scale factor — the base fonts have 1px
+#     pixel run is narrower than the scale factor; the base fonts have 1px
 #     stems, so unmagnified rendering fails this immediately.
 #
 # The same check runs the AArch64 build: the firmware is then ArmVirtQemu
@@ -27,7 +27,7 @@
 # machine QEMU's `virt`, and the display virtio-gpu, since ArmVirtQemu
 # carries no bochs-display driver. virtio-gpu advertises modes past 4K
 # and the driver picks the highest, so that run's framebuffer is larger;
-# the assertions derive their expectations from the dump's own size. One
+# the assertions derive their expectations from the size of the dump. One
 # assertion changes: the `virt` machine's PL011 is a console device too,
 # so the splitter's table is the intersection with TerminalDxe's fixed
 # modes and its largest entry is the terminal's 160x42, not the
@@ -37,7 +37,7 @@ let
   inherit (bigConsoleDxe) cellWidth cellHeight glyphScale;
   python = pkgs.python3.withPackages (ps: [ ps.numpy ]);
   aarch64 = bigConsoleDxe.stdenv.hostPlatform.isAarch64;
-  # Firmware and shell for the driver's own architecture: the host's
+  # Firmware and shell for the architecture of the driver: the host's
   # packages for x86-64, the cross set's for AArch64.
   targetPkgs = if aarch64 then pkgs.pkgsCross.aarch64-multiplatform else pkgs;
   ovmf = targetPkgs.OVMF;
