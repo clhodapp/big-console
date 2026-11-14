@@ -1,10 +1,8 @@
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 { ... }:
 {
-  config,
   inputs,
   lib,
-  self,
   ...
 }:
 {
@@ -28,10 +26,24 @@
     packages.export.enabled = true;
   };
 
-  # checks and formatter live in isolated partitions; packages deliberately
+  # The checks of big-console, with the pins of tests/dependencies that
+  # only the checks need (configs/flake/checks). The caisson top gathers
+  # the checks of every configuration declared inside it into its
+  # `checks` output. This selector passes the configuration up to
+  # nothing, so a flake that reads the exports of big-console evaluates
+  # neither the configuration nor its pins.
+  caisson.flake-parts.configurations.checks = lib.caisson.flake-parts.mkConfiguration {
+    inherit (lib.caisson.pins.flake-compat ../../../tests/dependencies) dependencies;
+  };
+  caisson.flake-parts.exported = _: { };
+
+  # The checks that boot the driver in QEMU run the firmware in a
+  # raw QEMU process inside the build, not under the NixOS test driver.
+  caisson.checkCategories.qemu.description = "Firmware or a disk image boots in QEMU inside the build and shows what the test expects.";
+
+  # The formatter lives in an isolated partition; packages deliberately
   # do not: downstream flakes consume packages.* against this flake's main
   # lock (inherited locks), so dev-only inputs must not taint them.
-  partitionedAttrs.checks = "checks";
   partitionedAttrs.formatter = "formatter";
 
   partitions.formatter = {
@@ -41,84 +53,6 @@
       {
         imports = [ inputs.treefmt-nix.flakeModule ];
         perSystem.treefmt.programs.nixfmt.enable = true;
-      };
-  };
-
-  partitions.checks = {
-    extraInputs = (lib.caisson.pins.flake-compat ../../../tests/dependencies).dependencies;
-    module =
-      { inputs, self, ... }:
-      {
-        imports = [ inputs.treefmt-nix.flakeModule ];
-        perSystem =
-          { pkgs, ... }:
-          {
-            checks = {
-              smoke = pkgs.runCommand "big-console-smoke-check" { } ''
-                touch "$out"
-              '';
-              # The driver takes over OVMF's console at 4K and renders
-              # readable text (see tests/big-console-vm.nix): the default
-              # build (embedded 16x32 font) and a 2x-magnified variant
-              # (32x64 cells) exercising the scaler on top.
-              big-console-vm = import ../../../tests/big-console-vm.nix {
-                inherit pkgs;
-                bigConsoleDxe = pkgs.big-console.big-console-dxe;
-              };
-              big-console-vm-scaled = import ../../../tests/big-console-vm.nix {
-                inherit pkgs;
-                bigConsoleDxe = pkgs.big-console.big-console-dxe.override {
-                  glyphScale = 2;
-                };
-              };
-              # The AArch64 builds, under ArmVirtQemu on an emulated
-              # `virt` machine (see the test's header for what differs).
-              big-console-vm-aarch64 = import ../../../tests/big-console-vm.nix {
-                inherit pkgs;
-                bigConsoleDxe = pkgs.big-console.big-console-dxe-aarch64;
-              };
-              big-console-vm-scaled-aarch64 = import ../../../tests/big-console-vm.nix {
-                inherit pkgs;
-                bigConsoleDxe = pkgs.big-console.big-console-dxe-2x-aarch64;
-              };
-              # systemd-boot's menu at 4K, with the driver loaded from its
-              # drivers directory (the deployment path) and without it. The
-              # scenes' images are what the README shows.
-              systemd-boot-menu =
-                let
-                  scene = args: import ../../../tests/big-console-menu.nix ({ inherit pkgs; } // args);
-                in
-                pkgs.linkFarm "systemd-boot-menu" [
-                  {
-                    name = "stock";
-                    path = scene { name = "stock"; };
-                  }
-                  {
-                    name = "big-console";
-                    path = scene {
-                      name = "big-console";
-                      bigConsoleDxe = pkgs.big-console.big-console-dxe;
-                    };
-                  }
-                  {
-                    name = "big-console-max";
-                    path = scene {
-                      name = "big-console-max";
-                      bigConsoleDxe = pkgs.big-console.big-console-dxe;
-                      consoleMode = "max";
-                    };
-                  }
-                  {
-                    name = "big-console-2x";
-                    path = scene {
-                      name = "big-console-2x";
-                      bigConsoleDxe = pkgs.big-console.big-console-dxe-2x;
-                    };
-                  }
-                ];
-            };
-            treefmt.programs.nixfmt.enable = true;
-          };
       };
   };
 
